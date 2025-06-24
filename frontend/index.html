@@ -22,10 +22,11 @@
     <button onclick="search()">Search</button>
   </section>
 
-  <!-- Auth Buttons placed below search bar -->
+  <!-- Auth Buttons: login/signup for guests, logout for authenticated users -->
   <section id="authButtons">
-    <button onclick="location.href='login.html'" class="btn-nav">Login</button>
-    <button onclick="location.href='signup.html'" class="btn-nav">Sign Up</button>
+    <button id="btnLogin" class="btn-nav">Login</button>
+    <button id="btnSignup" class="btn-nav">Sign Up</button>
+    <button id="btnLogout" class="btn-nav" style="display:none;">Logout</button>
   </section>
 
   <main>
@@ -37,10 +38,37 @@
   </main>
 
   <script>
+    // Helper for authenticated fetch
+    async function authFetch(url, opts = {}) {
+      const token = localStorage.getItem('jwt');
+      opts.headers = {
+        ...(opts.headers || {}),
+        'Content-Type': 'application/json',
+        ...(token && { Authorization: `Bearer ${token}` })
+      };
+      return fetch(url, opts);
+    }
+
+    // Show or hide auth controls based on presence of JWT
+    function updateAuthUI() {
+      const token = localStorage.getItem('jwt');
+      document.getElementById('btnLogin').style.display = token ? 'none' : 'inline-block';
+      document.getElementById('btnSignup').style.display = token ? 'none' : 'inline-block';
+      document.getElementById('btnLogout').style.display = token ? 'inline-block' : 'none';
+    }
+
+    document.getElementById('btnLogin').onclick = () => window.location.href = 'login.html';
+    document.getElementById('btnSignup').onclick = () => window.location.href = 'signup.html';
+    document.getElementById('btnLogout').onclick = () => {
+      localStorage.removeItem('jwt');
+      updateAuthUI();
+      loadWatchlist();
+    };
+
     async function search() {
       const query = document.getElementById('search').value;
       const type = document.getElementById('type').value;
-      const res = await fetch(`/search?q=${encodeURIComponent(query)}&type=${type}`);
+      const res = await authFetch(`/search?q=${encodeURIComponent(query)}&type=${type}`);
       const data = await res.json();
       const container = document.getElementById('results');
       container.innerHTML = '';
@@ -49,6 +77,19 @@
       } else if (data.error) {
         container.textContent = data.error;
       }
+    }
+
+    async function loadWatchlist() {
+      const res = await authFetch('/watchlist');
+      const container = document.getElementById('watchlist');
+      container.innerHTML = '';
+      if (res.status === 401) {
+        updateAuthUI();
+        return;
+      }
+      const data = await res.json();
+      data.forEach(item => container.appendChild(renderWatchItem(item)));
+      updateAuthUI();
     }
 
     function renderResult(item, type) {
@@ -65,79 +106,69 @@
           <p class="overview">${item.overview || ''}</p>
           <button class="btn-watchlist">Add to Watchlist</button>
         </div>`;
-      div.querySelector('.btn-watchlist').onclick = () => addToWatchlist({
-        id: item.id,
-        type,
-        title,
-        poster_path: item.poster_path,
-        overview: item.overview,
-        vote_average: item.vote_average
-      });
+      const btn = div.querySelector('.btn-watchlist');
+      // Only logged-in users can add to watchlist
+      const token = localStorage.getItem('jwt');
+      if (!token) {
+        btn.disabled = true;
+        btn.title = 'Login to add to watchlist';
+        btn.onclick = () => alert('Please log in to add items to your watchlist.');
+      } else {
+        btn.onclick = () => addToWatchlist({
+          id: item.id,
+          type,
+          title,
+          posterPath: item.poster_path,
+          overview: item.overview,
+          rating: item.vote_average
+        });
+      }
       return div;
-    }
-
-    async function loadWatchlist() {
-      const res = await fetch('/watchlist');
-      const data = await res.json();
-      const container = document.getElementById('watchlist');
-      container.innerHTML = '';
-      data.forEach(item => container.appendChild(renderWatchItem(item)));
     }
 
     function renderWatchItem(item) {
       const div = document.createElement('div');
       div.className = item.watched ? 'card watched' : 'card';
       div.innerHTML = `
-        <div class="poster"${item.poster_path ? '' : ' style="background:#333;"'}>
-          ${item.poster_path ? `<img src="https://image.tmdb.org/t/p/w200${item.poster_path}" alt="${item.title}" />` : ''}
+        <div class="poster"${item.posterPath ? '' : ' style="background:#333;"'}>
+          ${item.posterPath ? `<img src="https://image.tmdb.org/t/p/w200${item.posterPath}" alt="${item.title}" />` : ''}
         </div>
         <div class="info">
           <h4>${item.title}</h4>
-          <p class="rating">⭐ ${item.vote_average}</p>
+          <p class="rating">⭐ ${item.rating}</p>
           <textarea placeholder="Your notes…">${item.notes || ''}</textarea>
           <div class="actions">
             <button class="btn-remove">Remove</button>
             <button class="btn-done">Watched</button>
           </div>
         </div>`;
-      div.querySelector('.btn-remove').onclick = () => removeItem(item.id);
-      div.querySelector('.btn-done').onclick = () => markWatched(item.id);
-      div.querySelector('textarea').onchange = e => updateNotes(item.id, e.target.value);
+      div.querySelector('.btn-remove').onclick = () => removeItem(item.tmdbId);
+      div.querySelector('.btn-done').onclick = () => markWatched(item.tmdbId);
+      div.querySelector('textarea').onchange = e => updateNotes(item.tmdbId, e.target.value);
       return div;
     }
 
     async function addToWatchlist(item) {
-      await fetch('/watchlist', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(item),
-      });
+      await authFetch('/watchlist', { method: 'POST', body: JSON.stringify(item) });
       loadWatchlist();
     }
 
     async function updateNotes(id, notes) {
-      await fetch(`/watchlist/${id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ notes }),
-      });
+      await authFetch(`/watchlist/${id}`, { method: 'PUT', body: JSON.stringify({ notes }) });
     }
 
     async function removeItem(id) {
-      await fetch(`/watchlist/${id}`, { method: 'DELETE' });
+      await authFetch(`/watchlist/${id}`, { method: 'DELETE' });
       loadWatchlist();
     }
 
     async function markWatched(id) {
-      await fetch(`/watchlist/${id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ watched: true }),
-      });
+      await authFetch(`/watchlist/${id}`, { method: 'PUT', body: JSON.stringify({ watched: true }) });
       loadWatchlist();
     }
 
     // initialize on page load
+    updateAuthUI();
     loadWatchlist();
   </script>
 </body>

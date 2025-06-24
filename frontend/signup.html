@@ -1,3 +1,4 @@
+<!-- signup.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -10,15 +11,55 @@
 <body>
   <div class="auth-container">
     <h1>Create Account</h1>
-    <form>
-      <label for="name">Name</label>
-      <input id="name" type="text" placeholder="Your Name" required />
-      <label for="email">Email</label>
-      <input id="email" type="email" placeholder="you@example.com" required />
+    <form id="signupForm">
+      <label for="username">Username</label>
+      <input id="username" type="text" placeholder="your username" required />
       <label for="password">Password</label>
       <input id="password" type="password" placeholder="••••••••" required />
       <button type="submit" class="btn-primary">Sign Up</button>
     </form>
     <p>Already have an account? <a href="login.html" class="link-secondary">Log In</a></p>
+    <p id="errorMsg" class="error-msg"></p>
   </div>
+
+  <script>
+    document.getElementById('signupForm').addEventListener('submit', async e => {
+      e.preventDefault();
+      const username = document.getElementById('username').value.trim();
+      const password = document.getElementById('password').value;
+      const errorElem = document.getElementById('errorMsg');
+      errorElem.textContent = '';
+
+      // Username must be ≥6 chars
+      if (username.length < 6) {
+        errorElem.textContent = 'Username must be at least 6 characters long.';
+        return;
+      }
+
+      // Password complexity: ≥8 chars, uppercase, lowercase, digit, special
+      const complexity = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}$/;
+      if (!complexity.test(password)) {
+        errorElem.textContent = 'Password must be 8+ chars with uppercase, lowercase, number, and special character.';
+        return;
+      }
+
+      try {
+        const res = await fetch('/signup', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ username, password })
+        });
+        const data = await res.json();
+        if (res.ok && data.token) {
+          localStorage.setItem('jwt', data.token);
+          window.location.href = 'index.html';
+        } else {
+          errorElem.textContent = data.error || 'Sign up failed';
+        }
+      } catch (err) {
+        errorElem.textContent = 'Server error. Please try again.';
+      }
+    });
+  </script>
+</body>
 </html>

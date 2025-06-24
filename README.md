@@ -61,6 +61,8 @@ plain HTML and JavaScript.
    export TMDB_KEY=YOUR_API_KEY
    ```
 
+   sudo systemctl status mongodb
+
 ### Running the application
 
 Start the development server with:
