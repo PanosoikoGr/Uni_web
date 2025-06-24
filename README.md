@@ -70,12 +70,17 @@ npm start
 ```
 
 The server listens on port `3000` by default. Open
-`http://localhost:3000` in your browser and try searching for a movie.
+`http://localhost:3000` in your browser and try searching for a movie or
+TV show. You can add results to your personal watchlist, edit notes and
+remove items. The watchlist is stored in memory and will reset when the
+server restarts.
 
 ### Project structure
 
 - `backend/index.js` – Express server that proxies search requests to TMDB
-- `frontend/index.html` – Simple web page to perform movie searches
+  and exposes CRUD endpoints for the watchlist
+- `frontend/index.html` – Web interface with search and watchlist
+  management
 
 This is only a starting point for the final project described above. You can
 extend it with your own features such as user authentication, watchlists and
