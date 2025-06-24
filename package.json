@@ -1,0 +1,16 @@
+{
+  "name": "uni_web",
+  "version": "1.0.0",
+  "description": "Simple TMDB web app",
+  "main": "backend/index.js",
+  "scripts": {
+    "start": "node backend/index.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "express": "^5.1.0",
+    "node-fetch": "^2.7.0"
+  }
+}
