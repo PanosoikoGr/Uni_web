@@ -1,132 +1,144 @@
+<!-- index.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <title>Movie & TV Explorer</title>
-  <link rel="stylesheet" href="styles.css">
+  <link rel="preconnect" href="https://fonts.gstatic.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Slab:wght@400;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-  <h1>Movie & TV Explorer</h1>
-  <div id="searchBar">
-    <input id="search" placeholder="Title" />
+  <header>
+    <h1>Movie &amp; TV Explorer</h1>
+  </header>
+
+  <section id="searchBar">
+    <input id="search" type="text" placeholder="Search for a title…" />
     <select id="type">
       <option value="movie">Movie</option>
       <option value="tv">TV Show</option>
     </select>
     <button onclick="search()">Search</button>
-  </div>
-  <h2>Results</h2>
-  <div id="results"></div>
+  </section>
 
-  <h2>Watchlist</h2>
-  <div id="watchlist"></div>
+  <!-- Auth Buttons placed below search bar -->
+  <section id="authButtons">
+    <button onclick="location.href='login.html'" class="btn-nav">Login</button>
+    <button onclick="location.href='signup.html'" class="btn-nav">Sign Up</button>
+  </section>
 
-<script>
-async function search() {
-  const query = document.getElementById('search').value;
-  const type = document.getElementById('type').value;
-  const res = await fetch(`/search?q=${encodeURIComponent(query)}&type=${type}`);
-  const data = await res.json();
-  const container = document.getElementById('results');
-  container.innerHTML = '';
-  if (data.results) {
-    data.results.forEach(item => container.appendChild(renderResult(item, type)));
-  } else if (data.error) {
-    container.textContent = data.error;
-  }
-}
+  <main>
+    <h2>Results</h2>
+    <div id="results"></div>
 
-function renderResult(item, type) {
-  const div = document.createElement('div');
-  div.className = 'card';
-  const title = type === 'movie' ? item.title : item.name;
-  div.innerHTML = `<h4>${title}</h4>`;
-  if (item.poster_path) {
-    const img = document.createElement('img');
-    img.src = 'https://image.tmdb.org/t/p/w200' + item.poster_path;
-    div.appendChild(img);
-  }
-  div.innerHTML += `<p>Rating: ${item.vote_average}</p>`;
-  div.innerHTML += `<p>${item.overview || ''}</p>`;
-  const btn = document.createElement('button');
-  btn.textContent = 'Add to watchlist';
-  btn.onclick = () => addToWatchlist({
-    id: item.id,
-    type,
-    title,
-    poster_path: item.poster_path,
-    overview: item.overview,
-    vote_average: item.vote_average
-  });
-  div.appendChild(btn);
-  return div;
-}
+    <h2>Watchlist</h2>
+    <div id="watchlist"></div>
+  </main>
 
-async function loadWatchlist() {
-  const res = await fetch('/watchlist');
-  const data = await res.json();
-  const container = document.getElementById('watchlist');
-  container.innerHTML = '';
-  data.forEach(item => container.appendChild(renderWatchItem(item)));
-}
+  <script>
+    async function search() {
+      const query = document.getElementById('search').value;
+      const type = document.getElementById('type').value;
+      const res = await fetch(`/search?q=${encodeURIComponent(query)}&type=${type}`);
+      const data = await res.json();
+      const container = document.getElementById('results');
+      container.innerHTML = '';
+      if (data.results) {
+        data.results.forEach(item => container.appendChild(renderResult(item, type)));
+      } else if (data.error) {
+        container.textContent = data.error;
+      }
+    }
 
-function renderWatchItem(item) {
-  const div = document.createElement('div');
-  div.className = 'card';
-  div.innerHTML = `<h4>${item.title}</h4>`;
-  if (item.poster_path) {
-    const img = document.createElement('img');
-    img.src = 'https://image.tmdb.org/t/p/w200' + item.poster_path;
-    div.appendChild(img);
-  }
-  div.innerHTML += `<p>Rating: ${item.vote_average}</p>`;
-  const notes = document.createElement('textarea');
-  notes.value = item.notes || '';
-  notes.onchange = () => updateNotes(item.id, notes.value);
-  div.appendChild(notes);
-  const del = document.createElement('button');
-  del.textContent = 'Remove';
-  del.onclick = () => removeItem(item.id);
-  div.appendChild(del);
-  const done = document.createElement('button');
-  done.textContent = 'Watched';
-  done.onclick = () => markWatched(item.id);
-  div.appendChild(done);
-  return div;
-}
+    function renderResult(item, type) {
+      const div = document.createElement('div');
+      div.className = 'card';
+      const title = type === 'movie' ? item.title : item.name;
+      div.innerHTML = `
+        <div class="poster"${item.poster_path ? '' : ' style="background:#333;"'}>
+          ${item.poster_path ? `<img src="https://image.tmdb.org/t/p/w200${item.poster_path}" alt="${title}" />` : ''}
+        </div>
+        <div class="info">
+          <h4>${title}</h4>
+          <p class="rating">⭐ ${item.vote_average}</p>
+          <p class="overview">${item.overview || ''}</p>
+          <button class="btn-watchlist">Add to Watchlist</button>
+        </div>`;
+      div.querySelector('.btn-watchlist').onclick = () => addToWatchlist({
+        id: item.id,
+        type,
+        title,
+        poster_path: item.poster_path,
+        overview: item.overview,
+        vote_average: item.vote_average
+      });
+      return div;
+    }
 
-async function addToWatchlist(item) {
-  await fetch('/watchlist', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(item)
-  });
-  loadWatchlist();
-}
+    async function loadWatchlist() {
+      const res = await fetch('/watchlist');
+      const data = await res.json();
+      const container = document.getElementById('watchlist');
+      container.innerHTML = '';
+      data.forEach(item => container.appendChild(renderWatchItem(item)));
+    }
 
-async function updateNotes(id, notes) {
-  await fetch(`/watchlist/${id}`, {
-    method: 'PUT',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ notes })
-  });
-}
+    function renderWatchItem(item) {
+      const div = document.createElement('div');
+      div.className = item.watched ? 'card watched' : 'card';
+      div.innerHTML = `
+        <div class="poster"${item.poster_path ? '' : ' style="background:#333;"'}>
+          ${item.poster_path ? `<img src="https://image.tmdb.org/t/p/w200${item.poster_path}" alt="${item.title}" />` : ''}
+        </div>
+        <div class="info">
+          <h4>${item.title}</h4>
+          <p class="rating">⭐ ${item.vote_average}</p>
+          <textarea placeholder="Your notes…">${item.notes || ''}</textarea>
+          <div class="actions">
+            <button class="btn-remove">Remove</button>
+            <button class="btn-done">Watched</button>
+          </div>
+        </div>`;
+      div.querySelector('.btn-remove').onclick = () => removeItem(item.id);
+      div.querySelector('.btn-done').onclick = () => markWatched(item.id);
+      div.querySelector('textarea').onchange = e => updateNotes(item.id, e.target.value);
+      return div;
+    }
 
-async function removeItem(id) {
-  await fetch(`/watchlist/${id}`, { method: 'DELETE' });
-  loadWatchlist();
-}
+    async function addToWatchlist(item) {
+      await fetch('/watchlist', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(item),
+      });
+      loadWatchlist();
+    }
 
-async function markWatched(id) {
-  await fetch(`/watchlist/${id}`, {
-    method: 'PUT',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ watched: true })
-  });
-  loadWatchlist();
-}
+    async function updateNotes(id, notes) {
+      await fetch(`/watchlist/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ notes }),
+      });
+    }
 
-loadWatchlist();
-</script>
+    async function removeItem(id) {
+      await fetch(`/watchlist/${id}`, { method: 'DELETE' });
+      loadWatchlist();
+    }
+
+    async function markWatched(id) {
+      await fetch(`/watchlist/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ watched: true }),
+      });
+      loadWatchlist();
+    }
+
+    // initialize on page load
+    loadWatchlist();
+  </script>
 </body>
 </html>

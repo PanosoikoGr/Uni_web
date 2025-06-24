@@ -1,63 +1,217 @@
+/* Netflix-style fonts and resets */
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
 body {
-  font-family: Arial, sans-serif;
-  margin: 2em;
-  background: #f4f4f4;
+  font-family: 'Roboto Slab', serif;
+  background-color: #141414;
+  color: #e5e5e5;
+  min-height: 100vh;
+  padding: 1rem;
 }
-
-h1 {
+header h1 {
   text-align: center;
-  margin-bottom: 1em;
+  font-size: 2.5rem;
+  color: #e50914;
+  margin-bottom: 1rem;
 }
 
+/* Search Bar */
 #searchBar {
   display: flex;
   justify-content: center;
-  gap: 0.5em;
-  margin-bottom: 1.5em;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+#searchBar input,
+#searchBar select {
+  padding: 0.5rem;
+  border: none;
+  border-radius: 4px;
+  width: 200px;
+  background: #333;
+  color: #e5e5e5;
+}
+#searchBar button {
+  background: #e50914;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  font-weight: bold;
+  cursor: pointer;
+  color: #fff;
+}
+#searchBar button:hover {
+  background: #f40612;
 }
 
+/* Auth Buttons Section */
+#authButtons {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+.btn-nav {
+  background: transparent;
+  color: #e50914;
+  border: 2px solid #e50914;
+  padding: 0.4rem 1rem;
+  border-radius: 4px;
+  font-weight: bold;
+  cursor: pointer;
+}
+.btn-nav:hover {
+  background: #e50914;
+  color: #fff;
+}
+
+/* Main Layout */
+main {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+main h2 {
+  font-size: 1.8rem;
+  margin: 1.5rem 0 1rem;
+  border-bottom: 2px solid #333;
+  padding-bottom: 0.5rem;
+}
+
+/* Cards grid */
 #results,
 #watchlist {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 1rem;
+}
+
+/* Card */
+.card {
+  background: #222;
+  border-radius: 6px;
+  overflow: hidden;
+  transition: transform 0.2s ease;
+}
+.card:hover {
+  transform: scale(1.03);
+}
+.card.watched {
+  opacity: 0.6;
+}
+.card .poster {
+  width: 100%;
+  height: 270px;
+  background: #333;
   display: flex;
-  flex-wrap: wrap;
-  gap: 1em;
+  align-items: center;
   justify-content: center;
 }
-
-.card {
-  background: #fff;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  padding: 1em;
-  width: 200px;
+.card .poster img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.card .info {
+  padding: 0.75rem;
   display: flex;
   flex-direction: column;
-  align-items: center;
+  gap: 0.5rem;
 }
-
-.card img {
-  width: 100%;
-  height: auto;
+.card .info h4 {
+  font-size: 1rem;
+  color: #fff;
+  line-height: 1.2;
+}
+.card .info .rating {
+  font-size: 0.9rem;
+  color: #e50914;
+}
+.card .info .overview {
+  font-size: 0.8rem;
+  line-height: 1.2;
+  height: 3rem;
+  overflow: hidden;
+}
+.card .info textarea {
+  resize: vertical;
+  background: #333;
+  color: #e5e5e5;
+  border: none;
   border-radius: 4px;
-  margin-bottom: 0.5em;
+  padding: 0.5rem;
+  font-size: 0.85rem;
+  min-height: 3rem;
+}
+.card .info .actions {
+  display: flex;
+  gap: 0.5rem;
+}
+.card button {
+  background: #e50914;
+  border: none;
+  padding: 0.4rem;
+  border-radius: 4px;
+  color: #fff;
+  cursor: pointer;
+  font-size: 0.85rem;
+}
+.card button:hover {
+  background: #f40612;
 }
 
-.card h4 {
-  margin: 0.5em 0;
-  font-size: 1.1em;
+/* Auth Pages */
+.auth-container {
+  max-width: 400px;
+  margin: 4rem auto;
+  background: #222;
+  padding: 2rem;
+  border-radius: 6px;
   text-align: center;
 }
-
-.card p {
-  font-size: 0.9em;
-  margin: 0.25em 0;
+.auth-container h1 {
+  color: #e50914;
+  margin-bottom: 1.5rem;
+  font-size: 2rem;
 }
-
-textarea {
-  width: 100%;
-  margin-top: 0.5em;
+.auth-container form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
 }
-
-button {
-  margin-top: 0.5em;
+.auth-container label {
+  text-align: left;
+  font-size: 0.9rem;
+}
+.auth-container input {
+  padding: 0.5rem;
+  border: none;
+  border-radius: 4px;
+  background: #333;
+  color: #e5e5e5;
+  font-size: 1rem;
+}
+.btn-primary {
+  background: #e50914;
+  color: #fff;
+  border: none;
+  padding: 0.75rem;
+  border-radius: 4px;
+  font-size: 1rem;
+  cursor: pointer;
+  font-weight: bold;
+}
+.btn-primary:hover {
+  background: #f40612;
+}
+.link-secondary {
+  color: #e50914;
+  text-decoration: none;
+  font-weight: bold;
+}
+.link-secondary:hover {
+  text-decoration: underline;
 }
