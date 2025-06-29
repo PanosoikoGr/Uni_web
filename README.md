@@ -1,7 +1,7 @@
 # Οδηγός Εγκατάστασης και Χρήσης
 
 Αυτό το αποθετήριο περιέχει ένα απλό πλήρες web application που συνδυάζει
-**Node.js/Express** στο backend και καθαρό **HTML/CSS/JavaScript** στο frontend.
+**Node.js/Express** (mongodb) στο backend και καθαρό **HTML/CSS/JavaScript** στο frontend.
 Σκοπός της εφαρμογής είναι η αναζήτηση ταινιών/σειρών μέσω του API του
 [TMDB](https://developer.themoviedb.org/) και η αποθήκευση προσωπικής λίστας
 παρακολούθησης.
