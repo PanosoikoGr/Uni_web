@@ -1,44 +1,71 @@
-## Getting Started
+# Οδηγός Εγκατάστασης και Χρήσης
 
-This repository contains a minimal example of a full stack application that
-integrates with the [TMDB](https://developer.themoviedb.org/docs/getting-started)
-API. The backend is built with **Node.js** and **Express** and the frontend uses
-plain HTML and JavaScript.
+Αυτό το αποθετήριο περιέχει ένα απλό πλήρες web application που συνδυάζει
+**Node.js/Express** στο backend και καθαρό **HTML/CSS/JavaScript** στο frontend.
+Σκοπός της εφαρμογής είναι η αναζήτηση ταινιών/σειρών μέσω του API του
+[TMDB](https://developer.themoviedb.org/) και η αποθήκευση προσωπικής λίστας
+παρακολούθησης.
 
-### Prerequisites
+## Τεχνολογίες που χρησιμοποιήθηκαν και γιατί
 
-- Node.js >= 18
-- An API key from TMDB. Create a free account and obtain the key from their
-  dashboard.
+- **Node.js & Express**: επιτρέπουν γρήγορη ανάπτυξη server με ασύγχρονη
+  επεξεργασία αιτημάτων.
+- **MongoDB & Mongoose**: ευέλικτη αποθήκευση δεδομένων σε μορφή εγγράφων για τη
+  λίστα παρακολούθησης και τα στοιχεία χρήστη.
+- **bcrypt**: ασφαλής κρυπτογράφηση κωδικών πρόσβασης.
+- **jsonwebtoken (JWT)**: διαχείριση ταυτότητας χρηστών χωρίς διατήρηση session
+  στον server.
+- **dotenv**: φόρτωση μεταβλητών περιβάλλοντος από αρχείο `.env` ώστε να μην
+  εκτίθενται ευαίσθητα κλειδιά.
+- **TMDB API**: παροχή πληροφοριών για ταινίες και τηλεοπτικές σειρές.
 
-### Installation
+## Βήματα Εγκατάστασης
 
-1. Install the dependencies:
+1. **Κλωνοποίηση του αποθετηρίου**
+
+   ```bash
+   git clone <url> && cd Uni_web
+   ```
+
+2. **Εγκατάσταση εξαρτήσεων**
 
    ```bash
    npm install
    ```
 
-2. Export your TMDB API key in the environment:
+3. **Δημιουργία αρχείου `.env`**
+
+   Στο ριζικό φάκελο δημιουργήστε ένα αρχείο `.env` και προσθέστε:
 
    ```bash
-   export TMDB_KEY=YOUR_API_KEY
+   TMDB_KEY=ΤΟ_ΚΛΕΙΔΙ_ΣΑΣ
+   MONGO_URI=mongodb://localhost:27017/tmdb
+   JWT_SECRET=κάποιο_μυστικό
+   JWT_EXPIRES_IN=1d
    ```
 
-   sudo systemctl status mongodb
+   - `TMDB_KEY`: το κλειδί API από το TMDB.
+   - `MONGO_URI`: σύνδεση σε MongoDB. Μπορεί να είναι τοπική ή απομακρυσμένη.
+   - `JWT_SECRET`: μυστικό που χρησιμοποιείται για την υπογραφή των JWT.
+   - `JWT_EXPIRES_IN`: χρονικό διάστημα ισχύος των token.
 
-### Running the application
+4. **Εκκίνηση της βάσης MongoDB**
 
-Start the development server with:
+   Φροντίστε να τρέχει μία υπηρεσία MongoDB (π.χ. μέσω `sudo systemctl start mongodb`).
 
-```bash
-npm start
-```
+5. **Εκτέλεση της εφαρμογής**
 
-The server listens on port `3000` by default. Open
-`http://localhost:3000` in your browser and try searching for a movie or
-TV show. You can add results to your personal watchlist, edit notes and
-remove items. The watchlist is stored in memory and will reset when the
-server restarts.
+   ```bash
+   npm start
+   ```
 
+   Ο server θα ακούει στο `http://localhost:3000`.
 
+## Χρήση
+
+- Μεταβείτε στο `http://localhost:3000` για να κάνετε αναζήτηση ταινιών ή σειρών.
+- Δημιουργήστε λογαριασμό και συνδεθείτε για να κρατήσετε προσωπική watchlist.
+- Η watchlist αποθηκεύεται στη βάση MongoDB και μπορείτε να προσθέτετε σημειώσεις
+  ή να μαρκάρετε ταινίες ως "παρακολουθημένες".
+
+Αυτό ήταν! Καλή διασκέδαση με την εφαρμογή.
